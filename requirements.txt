@@ -1,0 +1,9 @@
+pygame
+numpy
+torch
+torchvision
+opencv-python 
+gymnasium
+ale-py
+swig
+gymnasium[box2d]
