@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>S.k.I.P.P.E.R</title>
+    <style>
+      :root {
+        --glow: #00d9ff;
+        --bg: #000;
+        --eye-w: 150px;
+        --eye-h: 110px;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        font-family: "Courier New", Courier, monospace;
+        color: var(--glow);
+        transition: all 0.5s ease;
+      }
+
+      #boot-screen {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .eye-container {
+        display: flex;
+        gap: 60px;
+        align-items: center;
+        position: relative;
+        animation: drift 10s ease-in-out infinite;
+      }
+
+      .eye {
+        width: var(--eye-w);
+        height: var(--eye-h);
+        background: var(--glow);
+        border-radius: 50% 50% 15% 15% / 70% 70% 30% 30%;
+        box-shadow:
+          0 0 40px var(--glow),
+          inset 0 -10px 20px rgba(0, 0, 0, 0.4);
+        transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      #sparkle {
+        position: absolute;
+        top: -40px;
+        right: -20px;
+        font-size: 40px;
+        color: #ffd700;
+        display: none;
+        text-shadow: 0 0 15px gold;
+      }
+
+      /* --- NEW MODES --- */
+
+      /* 1. Confusion: Asymmetric tilt */
+      .confusion .eye-l {
+        transform: rotate(-5deg);
+      }
+      .confusion .eye-r {
+        transform: rotate(15deg) translateY(-15px);
+      }
+
+      /* 2. Amusement: Happy squint (curved bottom) */
+      .amusement .eye {
+        border-radius: 50% 50% 40% 40%;
+        transform: scale(1.1);
+        height: 90px;
+      }
+
+      /* 3. Concern: Inner corners high (worried) */
+      .concern .eye-l {
+        transform: rotate(15deg);
+      }
+      .concern .eye-r {
+        transform: rotate(-15deg);
+      }
+
+      /* --- EXISTING MODES --- */
+      .evil {
+        --glow: #ff3333;
+      }
+      .evil .eye {
+        border-radius: 10% 10% 50% 50% / 20% 20% 80% 80%;
+        transform: translateY(10px);
+      }
+
+      .curious .eye-l {
+        transform: rotate(-12deg) translateY(-10px);
+      }
+      .curious .eye-r {
+        transform: rotate(12deg) translateY(-10px);
+      }
+
+      .sleeping .eye {
+        height: 10px;
+        border-radius: 5px;
+        opacity: 0.6;
+      }
+
+      .wink .eye-l {
+        border-radius: 50%;
+        height: 150px;
+        width: 150px;
+      }
+      .wink .eye-r {
+        height: 12px;
+        border-radius: 6px;
+        transform: translateY(30px);
+      }
+      /* 1. Judgment: One eye squinting */
+      .judgment .eye-r {
+        transform: scaleY(0.3) translateY(30px);
+        border-radius: 5px;
+      }
+
+      /* 2. Excitement: Round and pulsing */
+      .excitement .eye {
+        border-radius: 50%;
+        height: 140px;
+        width: 140px;
+        animation: jitter 0.2s infinite;
+        box-shadow: 0 0 60px var(--glow);
+      }
+
+      /* 3. Boredom: Heavy lids */
+      .boredom .eye {
+        height: 40px;
+        border-radius: 10% 10% 50% 50% / 20% 20% 80% 80%;
+        opacity: 0.7;
+      }
+
+      /* 4. Processing: Rapid scanning animation */
+      .processing .eye {
+        height: 60px;
+        animation: fast-scan 0.5s infinite alternate ease-in-out;
+      }
+
+      /* 5. Rage: Red and vibrating */
+      .rage {
+        --glow: #ff0000;
+      }
+      .rage .eye {
+        border-radius: 0% 100% 50% 50% / 0% 100% 50% 50%;
+        animation: jitter 0.1s infinite;
+      }
+
+      /* Animations */
+      @keyframes jitter {
+        0% {
+          transform: translate(1px, 1px);
+        }
+        50% {
+          transform: translate(-1px, -1px);
+        }
+        100% {
+          transform: translate(1px, -1px);
+        }
+      }
+
+      @keyframes fast-scan {
+        from {
+          transform: translateX(-40px);
+        }
+        to {
+          transform: translateX(40px);
+        }
+      }
+      @keyframes drift {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(10px, -5px);
+        }
+      }
+
+      .blink {
+        height: 2px !important;
+        transform: scaleY(0) !important;
+      }
+    </style>
+  </head>
+  <body class="default">
+    <div id="boot-screen" onclick="initializeRio()">
+      <div>[Activate Skipper]</div>
+    </div>
+
+    <div class="eye-container">
+      <div id="sparkle">✦</div>
+      <div class="eye eye-l"></div>
+      <div class="eye eye-r"></div>
+    </div>
+
+    <script>
+      const body = document.body;
+      const sparkle = document.getElementById("sparkle");
+
+      function initializeRio() {
+        document.documentElement.requestFullscreen().catch(() => {});
+        document.getElementById("boot-screen").style.display = "none";
+        startAutonomousCycle();
+        startBlinking();
+      }
+
+      /* --- MODE FUNCTIONS --- */
+      function modeDefault() {
+        body.className = "default";
+        sparkle.style.display = "none";
+      }
+      function modeEvil() {
+        body.className = "evil";
+        sparkle.style.display = "none";
+      }
+      function modeCurious() {
+        body.className = "curious";
+        sparkle.style.display = "none";
+      }
+      function modeSleeping() {
+        body.className = "sleeping";
+        sparkle.style.display = "none";
+      }
+      function modeWink() {
+        body.className = "wink";
+        sparkle.style.display = "block";
+      }
+      function modeConfusion() {
+        body.className = "confusion";
+        sparkle.style.display = "none";
+      }
+      function modeAmusement() {
+        body.className = "amusement";
+        sparkle.style.display = "none";
+      }
+      function modeConcern() {
+        body.className = "concern";
+        sparkle.style.display = "none";
+      }
+      function modeJudgment() {
+        body.className = "judgment";
+        sparkle.style.display = "none";
+      }
+      function modeExcitement() {
+        body.className = "excitement";
+        sparkle.style.display = "none";
+      }
+      function modeBoredom() {
+        body.className = "boredom";
+        sparkle.style.display = "none";
+      }
+      function modeProcessing() {
+        body.className = "processing";
+        sparkle.style.display = "none";
+      }
+      function modeRage() {
+        body.className = "rage";
+        sparkle.style.display = "none";
+      }
+
+      function startAutonomousCycle() {
+        const modes = [
+          modeDefault,
+          modeCurious,
+          modeConfusion,
+          modeJudgment,
+          modeExcitement,
+          modeBoredom,
+          modeProcessing,
+          modeAmusement,
+          modeConcern,
+          modeRage,
+          modeWink,
+          modeSleeping,
+          modeEvil,
+        ];
+
+        let index = 0;
+        setInterval(() => {
+          modes[index]();
+          index = (index + 1) % modes.length;
+        }, 4000);
+      }
+
+      function startBlinking() {
+        setInterval(() => {
+          if (body.className === "sleeping" || body.className === "wink")
+            return;
+          const eyes = document.querySelectorAll(".eye");
+          eyes.forEach((e) => e.classList.add("blink"));
+          setTimeout(
+            () => eyes.forEach((e) => e.classList.remove("blink")),
+            150,
+          );
+        }, 3500);
+      }
+    </script>
+  </body>
+</html>

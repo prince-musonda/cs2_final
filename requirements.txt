@@ -7,3 +7,5 @@ gymnasium
 ale-py
 swig
 gymnasium[box2d]
+labelImg
+pyautogui
