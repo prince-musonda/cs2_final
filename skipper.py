@@ -21,9 +21,10 @@ while running:
     print(results[0].boxes)
     confidence = results[0].boxes.conf
     if confidence.numel() > 0:
-        x1, y1, x2, y2 = boxes[0]
-        center_x = (x1 + x2) // 2
-        center_y = (y1 + y2) // 2
-        pyautogui.moveTo(center_x, center_y, 1)
-        pyautogui.click()
-        time.sleep(1)
+        if confidence[0] >= 0.5:
+            x1, y1, x2, y2 = boxes[0]
+            center_x = (x1 + x2) // 2
+            center_y = (y1 + y2) // 2
+            pyautogui.moveTo(center_x, center_y, 1)
+            pyautogui.click()
+            time.sleep(1)
